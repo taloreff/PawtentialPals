@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity"
+    tools:context=".ui.MainActivity"
     tools:ignore="MissingDefaultResource">
 
     <ImageView
@@ -130,7 +130,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/sign_in_button"
+            android:id="@+id/sign_up_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/purple_500"
@@ -155,7 +155,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:text="@string/sign_in"
-                android:textColor="@color/purple_500" />
+                android:textColor="@color/purple_500"
+                android:id="@+id/go_sign_in"
+                />
         </LinearLayout>
 
     </LinearLayout>

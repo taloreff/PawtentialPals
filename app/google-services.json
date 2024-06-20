@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "950583160953",
+    "project_id": "pawtentialpals",
+    "storage_bucket": "pawtentialpals.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950583160953:android:3f3317b32be22893a0a4a8",
+        "android_client_info": {
+          "package_name": "com.example.pawtentialpals"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgKsFtp4OZ5SJkWCOey-NKR3K3de7YXrE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
