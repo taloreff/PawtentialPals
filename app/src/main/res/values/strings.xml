@@ -21,4 +21,10 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_signup">SignupActivity</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="upload_your_photo">Upload your photo</string>
+    <string name="input_description">Enter your description</string>
+    <string name="input_location">Enter your location</string>
+    <string name="input_puppy_location">Enter your puppy location</string>
+    <string name="post">Post</string>
 </resources>
