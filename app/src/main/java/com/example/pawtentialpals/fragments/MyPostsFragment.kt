@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pawtentialpals.adapters.MyPostAdapter
 import com.example.pawtentialpals.databinding.FragmentMyPostsBinding
 import com.example.pawtentialpals.models.PostModel
+import com.example.pawtentialpals.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -43,27 +44,14 @@ class MyPostsFragment : Fragment() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val document = task.result
-                    val postMap = document?.get("posts") as? List<Map<String, Any>>
-                    val posts = postMap?.mapNotNull { postMap ->
-                        try {
-                            PostModel(
-                                id = postMap["id"] as String,
-                                userId = postMap["userId"] as String,
-                                userName = postMap["userName"] as String,
-                                userImage = postMap["userImage"] as String,
-                                timestamp = (postMap["timestamp"] as Long),
-                                description = postMap["description"] as String,
-                                location = postMap["location"] as String,
-                                postImage = postMap["postImage"] as String,
-                                likes = (postMap["likes"] as Long).toInt(),
-                                comments = postMap["comments"] as ArrayList<String>
-                            )
-                        } catch (e: Exception) {
-                            null
-                        }
+                    if (document != null && document.exists()) {
+                        val user = document.toObject(UserModel::class.java)
+                        val posts = user?.posts ?: arrayListOf()
+                        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+                        binding.recyclerView.adapter = MyPostAdapter(posts)
+                    } else {
+                        Toast.makeText(context, "No posts found", Toast.LENGTH_LONG).show()
                     }
-                    binding.recyclerView.layoutManager = LinearLayoutManager(context)
-                    binding.recyclerView.adapter = posts?.let { MyPostAdapter(it.toMutableList()) }
                 } else {
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }

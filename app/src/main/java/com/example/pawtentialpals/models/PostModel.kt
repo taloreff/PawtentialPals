@@ -5,10 +5,18 @@ data class PostModel(
     val userId: String = "",
     val userName: String = "",
     val userImage: String = "",
-    var timestamp: Long = 0L,
+    val timestamp: Long = 0L,
     val description: String = "",
     val location: String = "",
     val postImage: String = "",
     val likes: Int = 0,
-    val comments: ArrayList<String> = ArrayList()
+    val comments: List<Comment> = listOf()
+)
+
+data class Comment(
+    val userId: String = "",
+    val userName: String = "",
+    val userImage: String = "",
+    val comment: String = "",
+    val timestamp: Long = 0L
 )
