@@ -1,13 +1,11 @@
 package com.example.pawtentialpals.models
 
-import android.net.Uri
-
 data class PostModel(
     val id: String = "",
     val userId: String = "",
     val userName: String = "",
     val userImage: String = "",
-    val timestamp: String = "",
+    var timestamp: Long = 0L,
     val description: String = "",
     val location: String = "",
     val postImage: String = "",

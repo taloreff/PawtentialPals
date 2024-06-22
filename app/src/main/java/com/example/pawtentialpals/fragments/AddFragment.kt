@@ -1,4 +1,4 @@
-package com.example.pawtentialpals.ui.fragments
+package com.example.pawtentialpals.fragments
 
 import android.Manifest
 import android.app.Activity
@@ -20,8 +20,8 @@ import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.FragmentAddBinding
 import com.example.pawtentialpals.models.PostModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
 import java.util.*
 
 class AddFragment : Fragment() {
@@ -141,39 +141,40 @@ class AddFragment : Fragment() {
     private fun savePostToFirestore(userId: String, userName: String, userImage: Uri, description: String, location: String) {
         val postId = UUID.randomUUID().toString()
 
-        // Format the current date
-        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-        val currentDate = dateFormat.format(Date())
+        // Use current timestamp in milliseconds
+        val currentTimestamp = System.currentTimeMillis()
 
-        val post = PostModel(
-            id = postId,
-            userId = userId,
-            userName = userName,
-            userImage = userImage.toString(),
-            timestamp = currentDate,
-            description = description,
-            location = location,
-            postImage = selectedImageUri.toString(),
-            likes = 0,
-            comments = ArrayList()
+        val post = mapOf(
+            "id" to postId,
+            "userId" to userId,
+            "userName" to userName,
+            "userImage" to userImage.toString(),
+            "timestamp" to currentTimestamp,
+            "description" to description,
+            "location" to location,
+            "postImage" to selectedImageUri.toString(),
+            "likes" to 0,
+            "comments" to ArrayList<String>()
         )
 
         firestore.collection("posts").document(postId).set(post)
             .addOnSuccessListener {
+                // Add the post to the user's posts array
                 firestore.collection("users").document(userId)
-                    .collection("posts").document(postId).set(post)
+                    .update("posts", FieldValue.arrayUnion(post))
                     .addOnSuccessListener {
                         Toast.makeText(requireContext(), "Post created successfully", Toast.LENGTH_SHORT).show()
                         navigateToHome()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Failed to save post", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to update user's posts array", Toast.LENGTH_SHORT).show()
                     }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to create post", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun navigateToHome() {
         parentFragmentManager.beginTransaction()

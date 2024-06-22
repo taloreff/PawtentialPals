@@ -1,11 +1,11 @@
-package com.example.pawtentialpals.ui.auth
+package com.example.pawtentialpals.auth
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pawtentialpals.databinding.ActivityLoginBinding
-import com.example.pawtentialpals.ui.MainActivity
+import com.example.pawtentialpals.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {

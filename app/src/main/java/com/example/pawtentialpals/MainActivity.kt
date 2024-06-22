@@ -1,13 +1,12 @@
-package com.example.pawtentialpals.ui
+package com.example.pawtentialpals
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.ActivityMainBinding
-import com.example.pawtentialpals.ui.fragments.HomeFragment
-import com.example.pawtentialpals.ui.fragments.AddFragment
-import com.example.pawtentialpals.ui.fragments.MenuFragment
+import com.example.pawtentialpals.fragments.HomeFragment
+import com.example.pawtentialpals.fragments.AddFragment
+import com.example.pawtentialpals.fragments.MenuFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 

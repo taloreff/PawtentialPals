@@ -1,4 +1,4 @@
-package com.example.pawtentialpals.ui.fragments
+package com.example.pawtentialpals.fragments
 
 import android.Manifest
 import android.app.Activity
@@ -15,7 +15,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.FragmentProfileBinding
+import com.example.pawtentialpals.viewModels.ProfileUpdateViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -23,6 +28,7 @@ class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+    private val profileUpdateViewModel: ProfileUpdateViewModel by activityViewModels()
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
@@ -48,7 +54,6 @@ class ProfileFragment : Fragment() {
         firestore = FirebaseFirestore.getInstance()
 
         binding.profileImage.setOnClickListener { openImageSelector() }
-        binding.editEmail.setOnClickListener { binding.email.isEnabled = true }
         binding.editUsername.setOnClickListener { binding.username.isEnabled = true }
         binding.saveButton.setOnClickListener { saveChanges() }
 
@@ -102,38 +107,70 @@ class ProfileFragment : Fragment() {
 
     private fun saveChanges() {
         val userId = firebaseAuth.currentUser?.uid ?: return
-        val newEmail = binding.email.text.toString().trim()
         val newUsername = binding.username.text.toString().trim()
 
         val userUpdates = hashMapOf<String, Any>(
-            "email" to newEmail,
             "name" to newUsername
         )
 
-        selectedImageUri?.let {
-            userUpdates["image"] = it.toString()
+        selectedImageUri?.let { uri ->
+            userUpdates["image"] = uri.toString()
         }
 
         firestore.collection("users").document(userId).update(userUpdates)
             .addOnSuccessListener {
+                updatePreviousPosts(userId, newUsername, userUpdates["image"] as? String)
                 Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                binding.email.isEnabled = false
                 binding.username.isEnabled = false
+                profileUpdateViewModel.setProfileUpdated(true)
+                navigateToHome()
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
             }
+
+        val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+            .setDisplayName(newUsername)
+            .build()
+
+        firebaseAuth.currentUser?.updateProfile(profileUpdates)
+            ?.addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Toast.makeText(requireContext(), "Failed to update username in Auth", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == GALLERY_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openGallery()
-            } else {
-                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+    private fun updatePreviousPosts(userId: String, newUsername: String, newImageUri: String?) {
+        firestore.collection("posts")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = firestore.batch()
+                for (document in querySnapshot.documents) {
+                    val postRef = document.reference
+                    val updates = hashMapOf<String, Any>(
+                        "userName" to newUsername
+                    )
+                    newImageUri?.let { uri ->
+                        updates["userImage"] = uri
+                    }
+                    batch.update(postRef, updates)
+                }
+                batch.commit()
+                    .addOnSuccessListener {
+                        profileUpdateViewModel.setProfileUpdated(true)
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Failed to update previous posts", Toast.LENGTH_SHORT).show()
+                    }
             }
-        }
+    }
+
+    private fun navigateToHome() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, HomeFragment())
+            .commit()
     }
 
     companion object {

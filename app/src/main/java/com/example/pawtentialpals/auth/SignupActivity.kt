@@ -1,4 +1,4 @@
-package com.example.pawtentialpals.ui.auth
+package com.example.pawtentialpals.auth
 
 import android.content.Intent
 import android.os.Bundle

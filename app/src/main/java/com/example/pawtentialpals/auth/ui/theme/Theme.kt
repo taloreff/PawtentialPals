@@ -1,4 +1,4 @@
-package com.example.pawtentialpals.ui.auth.ui.theme
+package com.example.pawtentialpals.auth.ui.theme
 
 import android.app.Activity
 import android.os.Build

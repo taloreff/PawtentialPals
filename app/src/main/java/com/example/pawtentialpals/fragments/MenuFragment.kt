@@ -1,4 +1,4 @@
-package com.example.pawtentialpals.ui.fragments
+package com.example.pawtentialpals.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater

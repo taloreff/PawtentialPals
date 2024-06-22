@@ -6,19 +6,19 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.pawtentialpals.ui.fragments.HomeFragment"
+        android:name="com.example.pawtentialpals.fragments.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_add"
-        android:name="com.example.pawtentialpals.ui.fragments.AddFragment"
+        android:name="com.example.pawtentialpals.fragments.AddFragment"
         android:label="Add"
         tools:layout="@layout/fragment_add" />
 
     <fragment
         android:id="@+id/nav_menu"
-        android:name="com.example.pawtentialpals.ui.fragments.MenuFragment"
+        android:name="com.example.pawtentialpals.fragments.MenuFragment"
         android:label="Menu"
         tools:layout="@layout/fragment_menu" />
 </navigation>
