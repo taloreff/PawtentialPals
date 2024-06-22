@@ -25,16 +25,18 @@ class PostAdapter(private val postList: List<PostModel>) :
 
     class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: PostModel) {
-            binding.username.text = post.username
-            binding.postTime.text = post.postTime
-            binding.postContent.text = post.postContent
+            binding.username.text = post.userName
+            binding.postTime.text = post.timestamp
+            binding.postContent.text = post.description
             binding.likes.text = post.likes.toString()
-            binding.comments.text = post.comments.toString()
-            binding.userImage.load(post.userImage) {
+            binding.comments.text = post.comments.size.toString()
+
+            binding.userImage.load(post.userImage ?: R.drawable.batman) {
                 placeholder(R.drawable.ic_user_placeholder)
                 error(R.drawable.ic_user_placeholder)
             }
-            binding.postImage.load(post.postImage) {
+
+            binding.postImage.load(post.postImage ?: R.drawable.batman) {
                 placeholder(R.drawable.ic_post_placeholder)
                 error(R.drawable.ic_post_placeholder)
             }

@@ -6,7 +6,7 @@ data class UserModel(
     var email: String = "",
     var password: String = "",
     var image: String = DEFAULT_IMAGE,
-//    var myPosts: ArrayList<PostModel> = ArrayList(),
+    var posts: ArrayList<PostModel> = ArrayList(),
 ) {
     companion object {
         private const val DEFAULT_IMAGE = "drawable/batman.png"
