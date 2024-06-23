@@ -21,6 +21,7 @@ class MyPostsFragment : Fragment() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var adapter: MyPostAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,27 +35,31 @@ class MyPostsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
         loadUserPosts()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = MyPostAdapter(mutableListOf())
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.adapter = adapter
     }
 
     private fun loadUserPosts() {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
-        firestore.collection("users").document(userId).get()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val document = task.result
-                    if (document != null && document.exists()) {
-                        val user = document.toObject(UserModel::class.java)
-                        val posts = user?.posts ?: arrayListOf()
-                        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-                        binding.recyclerView.adapter = MyPostAdapter(posts)
-                    } else {
-                        Toast.makeText(context, "No posts found", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+        firestore.collection("posts")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener { documents ->
+                val posts = documents.mapNotNull { it.toObject(PostModel::class.java) }
+                adapter.updatePosts(posts)
+                if (posts.isEmpty()) {
+                    Toast.makeText(context, "No posts found", Toast.LENGTH_LONG).show()
                 }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 

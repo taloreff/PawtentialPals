@@ -16,13 +16,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import coil.load
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.FragmentProfileBinding
+import com.example.pawtentialpals.services.UploadService
 import com.example.pawtentialpals.viewModels.ProfileUpdateViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class ProfileFragment : Fragment() {
 
@@ -96,7 +101,9 @@ class ProfileFragment : Fragment() {
                     binding.email.setText(email)
                     binding.username.setText(userName)
                     if (imageUrl.isNotEmpty()) {
-                        binding.profileImage.setImageURI(Uri.parse(imageUrl))
+                        binding.profileImage.load(imageUrl) {
+                            crossfade(true)
+                        }
                     }
                 }
             }
@@ -113,10 +120,41 @@ class ProfileFragment : Fragment() {
             "name" to newUsername
         )
 
-        selectedImageUri?.let { uri ->
-            userUpdates["image"] = uri.toString()
+        if (selectedImageUri != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val imageUrl = uploadImage(selectedImageUri!!)
+                if (imageUrl != null) {
+                    userUpdates["image"] = imageUrl
+                    updateUserProfile(userId, userUpdates, newUsername)
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } else {
+            updateUserProfile(userId, userUpdates, newUsername)
         }
+    }
 
+    private suspend fun uploadImage(uri: Uri): String? {
+        val filePath = getPathFromUri(uri) ?: return null
+        return UploadService.uploadImg(filePath)
+    }
+
+    private fun getPathFromUri(uri: Uri): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = requireContext().contentResolver.query(uri, projection, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                return it.getString(columnIndex)
+            }
+        }
+        return null
+    }
+
+    private fun updateUserProfile(userId: String, userUpdates: HashMap<String, Any>, newUsername: String) {
         firestore.collection("users").document(userId).update(userUpdates)
             .addOnSuccessListener {
                 updatePreviousPosts(userId, newUsername, userUpdates["image"] as? String)

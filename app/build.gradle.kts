@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.android.material:material:1.9.0")
     implementation("com.google.android.gms:play-services-maps:18.0.2")
     implementation("com.google.android.libraries.places:places:2.6.0")
     implementation("androidx.viewpager2:viewpager2:1.0.0")

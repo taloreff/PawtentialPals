@@ -17,6 +17,7 @@ import ImageSliderAdapter
 import com.example.pawtentialpals.databinding.FragmentAddBinding
 import com.example.pawtentialpals.models.PostModel
 import com.example.pawtentialpals.models.UserModel
+import com.example.pawtentialpals.services.UploadService
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
@@ -24,6 +25,10 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class AddFragment : Fragment() {
@@ -36,6 +41,7 @@ class AddFragment : Fragment() {
 
     private var selectedImageUri: Uri? = null
     private var mapImageUrl: String? = null
+    private var selectedLocation: String? = null
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -80,8 +86,7 @@ class AddFragment : Fragment() {
 
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                val location = place.name ?: ""
-                binding.location.setText(location)
+                selectedLocation = place.name ?: ""
                 mapImageUrl = getMapImageUrl(place.latLng)
                 displayImages()
             }
@@ -103,29 +108,54 @@ class AddFragment : Fragment() {
         selectedImageUri?.let { imageUrls.add(it.toString()) }
         mapImageUrl?.let { imageUrls.add(it) }
 
-        if (imageUrls.isNotEmpty()) {
+        if (imageUrls.size == 2) {
             binding.imageSlider.visibility = View.VISIBLE
             binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
+            binding.uploadPhotoButton.visibility = View.GONE
         } else {
             binding.imageSlider.visibility = View.GONE
         }
 
         // Always keep the upload button visible
-        binding.uploadPhotoButton.visibility = View.VISIBLE
     }
 
     private fun postToFirestore() {
         val description = binding.description.text.toString().trim()
-        val location = binding.location.text.toString().trim()
 
-        if (description != null && selectedImageUri != null && mapImageUrl != null) {
-            fetchUserDataAndSavePost(description, location)
+        if (description.isNotEmpty() && selectedImageUri != null && mapImageUrl != null && selectedLocation != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val imageUrl = uploadImage(selectedImageUri!!)
+                if (imageUrl != null) {
+                    fetchUserDataAndSavePost(description, selectedLocation!!, imageUrl)
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "Please select an image and location", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun fetchUserDataAndSavePost(description: String, location: String) {
+    private suspend fun uploadImage(uri: Uri): String? {
+        val filePath = getPathFromUri(uri) ?: return null
+        return UploadService.uploadImg(filePath)
+    }
+
+    private fun getPathFromUri(uri: Uri): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = requireContext().contentResolver.query(uri, projection, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                return it.getString(columnIndex)
+            }
+        }
+        return null
+    }
+
+    private fun fetchUserDataAndSavePost(description: String, location: String, imageUrl: String) {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
         firestore.collection("users").document(userId).get()
@@ -134,14 +164,14 @@ class AddFragment : Fragment() {
                 val userName = user.name
                 val userImage = user.image
 
-                savePostToFirestore(userId, userName, Uri.parse(userImage), description, location)
+                savePostToFirestore(userId, userName, Uri.parse(userImage), description, location, imageUrl)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to fetch user data", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun savePostToFirestore(userId: String, userName: String, userImage: Uri, description: String, location: String) {
+    private fun savePostToFirestore(userId: String, userName: String, userImage: Uri, description: String, location: String, imageUrl: String) {
         val postId = UUID.randomUUID().toString()
         val currentTimestamp = System.currentTimeMillis()
 
@@ -153,7 +183,7 @@ class AddFragment : Fragment() {
             timestamp = currentTimestamp,
             description = description,
             location = location,
-            postImage = selectedImageUri.toString(),
+            postImage = imageUrl,
             mapImage = mapImageUrl ?: "",
             likes = 0,
             comments = emptyList()

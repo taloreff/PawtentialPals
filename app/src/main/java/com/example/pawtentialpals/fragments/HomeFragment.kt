@@ -1,6 +1,7 @@
 package com.example.pawtentialpals.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,13 +45,17 @@ class HomeFragment : Fragment() {
         firestore.collection("posts").get()
             .addOnSuccessListener { result ->
                 val posts = result.mapNotNull { it.toObject(PostModel::class.java) }
+                for (post in posts) {
+                    Log.d("HomeFragment", "Post: ${post.postImage}, ${post.mapImage}")
+                }
                 binding.recyclerView.layoutManager = LinearLayoutManager(context)
                 binding.recyclerView.adapter = PostAdapter(posts)
             }
-            .addOnFailureListener {
-                // Handle error
+            .addOnFailureListener { e ->
+                Log.e("HomeFragment", "Error fetching posts", e)
             }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

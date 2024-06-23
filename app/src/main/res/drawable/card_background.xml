@@ -1,0 +1,20 @@
+<!-- res/drawable/card_background.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white"/>
+            <corners android:radius="8dp"/>
+        </shape>
+    </item>
+    <item android:right="2dp" android:left="2dp" android:top="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+            <corners android:radius="8dp"/>
+            <padding android:top="4dp" android:right="4dp" android:bottom="4dp" android:left="4dp"/>
+            <shadow android:shadowColor="@android:color/darker_gray"
+                android:shadowDx="0"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
+        </shape>
+    </item>
+</layer-list>

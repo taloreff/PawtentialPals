@@ -12,6 +12,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var firebaseAuth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -20,15 +21,14 @@ class LoginActivity : AppCompatActivity() {
 
         firebaseAuth = FirebaseAuth.getInstance()
 
-        binding.goSignUp.setOnClickListener{
+        binding.goSignUp.setOnClickListener {
             val intent = Intent(this, SignupActivity::class.java)
             startActivity(intent)
         }
 
         binding.signInButton.setOnClickListener {
-            val email = binding.email.text.toString()
-            val password = binding.password.text.toString()
-
+            val email = binding.email.text.toString().trim()
+            val password = binding.password.text.toString().trim()
 
             if(email.isNotEmpty() && password.isNotEmpty()) {
                 firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener{
@@ -44,4 +44,5 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
 }

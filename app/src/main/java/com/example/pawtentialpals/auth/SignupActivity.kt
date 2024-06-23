@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.databinding.ActivitySignupBinding
 import com.example.pawtentialpals.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
@@ -28,7 +29,7 @@ class SignupActivity : ComponentActivity() {
         firestore = FirebaseFirestore.getInstance()
 
         binding.goSignIn.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
         binding.signUpButton.setOnClickListener {

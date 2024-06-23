@@ -12,6 +12,7 @@ import com.example.pawtentialpals.models.PostModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
+import coil.transform.CircleCropTransformation
 import java.util.*
 
 class PostAdapter(private val postList: List<PostModel>) :
@@ -36,9 +37,11 @@ class PostAdapter(private val postList: List<PostModel>) :
             binding.username.text = post.userName
             binding.postTime.text = formatTimestamp(post.timestamp)
             binding.postContent.text = post.description
+            binding.postLocation.text = post.location
             binding.likes.text = currentLikes.toString()
             binding.comments.text = post.comments.size.toString()
             binding.userImage.load(post.userImage) {
+                transformations(CircleCropTransformation())
                 placeholder(R.drawable.ic_user_placeholder)
                 error(R.drawable.ic_user_placeholder)
             }

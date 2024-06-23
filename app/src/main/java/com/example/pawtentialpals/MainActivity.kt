@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var drawerLayout: DrawerLayout
 
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        drawerLayout = findViewById(R.id.drawer_layout)
+        drawerLayout = binding.drawerLayout
 
         // Setup Bottom Navigation
         val navView: BottomNavigationView = binding.bottomNavView
@@ -48,27 +48,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Setup drawer menu click listeners
-        binding.logOut.setOnClickListener {
-            // Handle log out
-            firebaseAuth.signOut()
-            // Optionally navigate to login screen or close the app
-        }
-
-        binding.myPosts.setOnClickListener {
-            loadFragment(MyPostsFragment())
-            drawerLayout.closeDrawer(binding.drawerMenu)
-        }
-
-        binding.myProfile.setOnClickListener {
-            loadFragment(ProfileFragment())
-            drawerLayout.closeDrawer(binding.drawerMenu)
-        }
-
         // Load the default fragment
         if (savedInstanceState == null) {
             navView.selectedItemId = R.id.nav_home
         }
+
+        // Setup the menu fragment in the drawer
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.drawer_menu, MenuFragment())
+            .commit()
     }
 
     private fun loadFragment(fragment: Fragment) {

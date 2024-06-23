@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.auth.LoginActivity
 import com.example.pawtentialpals.databinding.FragmentMenuBinding
@@ -21,7 +22,7 @@ class MenuFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMenuBinding.inflate(inflater, container, false)
         firebaseAuth = FirebaseAuth.getInstance()
         return binding.root
@@ -35,17 +36,11 @@ class MenuFragment : Fragment() {
         }
 
         binding.myPosts.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, MyPostsFragment())
-                .addToBackStack(null)
-                .commit()
+            loadFragment(MyPostsFragment())
         }
 
         binding.myProfile.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ProfileFragment())
-                .addToBackStack(null)
-                .commit()
+            loadFragment(ProfileFragment())
         }
     }
 
@@ -54,6 +49,15 @@ class MenuFragment : Fragment() {
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+        requireActivity().finish()
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+        (requireActivity() as? MainActivity)?.binding?.drawerLayout?.closeDrawers()
     }
 
     override fun onDestroyView() {

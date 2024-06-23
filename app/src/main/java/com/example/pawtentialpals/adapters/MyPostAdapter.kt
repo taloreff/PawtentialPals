@@ -3,10 +3,10 @@ package com.example.pawtentialpals.adapters
 import ImageSliderAdapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.transform.CircleCropTransformation
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.MyItemPostBinding
 import com.example.pawtentialpals.models.PostModel
@@ -29,17 +29,31 @@ class MyPostAdapter(private val postList: MutableList<PostModel>) :
 
     override fun getItemCount() = postList.size
 
+
+    fun updatePosts(newPosts: List<PostModel>) {
+        postList.clear()
+        postList.addAll(newPosts)
+        notifyDataSetChanged()
+    }
+
     inner class PostViewHolder(private val binding: MyItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: PostModel) {
-            binding.username.text = post.userName
+            FirebaseFirestore.getInstance().collection("users").document(post.userId).get()
+                .addOnSuccessListener { document ->
+                    val user = document.toObject(User::class.java)
+                    binding.username.text = user?.name ?: post.userName
+                    binding.userImage.load(user?.image ?: post.userImage) {
+                        transformations(CircleCropTransformation())
+                        placeholder(R.drawable.batman)
+                        error(R.drawable.batman)
+                    }
+                }
+
             binding.postTime.text = formatTimestamp(post.timestamp)
-            binding.postContent.setText(post.description)
+            binding.postContent.text = post.description
+            binding.postLocation.text = post.location
             binding.likes.text = post.likes.toString()
             binding.comments.text = post.comments.size.toString()
-            binding.userImage.load(post.userImage) {
-                placeholder(R.drawable.batman)
-                error(R.drawable.batman)
-            }
 
             val imageUrls = listOf(post.postImage, post.mapImage)
             binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
