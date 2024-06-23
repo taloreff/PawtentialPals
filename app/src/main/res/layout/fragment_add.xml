@@ -68,6 +68,14 @@
                     android:textColor="@color/black" />
             </LinearLayout>
 
+            <!-- AutocompleteSupportFragment for location search -->
+            <fragment
+                android:id="@+id/autocomplete_fragment"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" />
+
             <Button
                 android:id="@+id/upload_photo_button"
                 android:layout_width="wrap_content"
@@ -82,13 +90,12 @@
                 android:textColor="@color/purple_500"
                 android:textSize="16sp" />
 
-            <ImageView
-                android:id="@+id/previewImageView"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/image_slider"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:scaleType="centerCrop"
                 android:visibility="gone" />
 
             <Button

@@ -9,6 +9,7 @@ data class PostModel(
     val description: String = "",
     val location: String = "",
     val postImage: String = "",
+    val mapImage: String = "",
     val likes: Int = 0,
     val comments: List<Comment> = listOf()
 )

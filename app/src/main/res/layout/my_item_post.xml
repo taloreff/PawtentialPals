@@ -42,6 +42,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="268dp"
+        android:text="Delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_button" />
+
     <EditText
         android:id="@+id/post_content"
         android:layout_width="0dp"
@@ -56,30 +65,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/user_image" />
 
-    <FrameLayout
-        android:id="@+id/image_container"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/image_slider"
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/post_content">
-
-        <ImageView
-            android:id="@+id/post_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_post_placeholder" />
-
-        <ImageButton
-            android:id="@+id/delete_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="top|end"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_delete" />
-    </FrameLayout>
+        app:layout_constraintTop_toBottomOf="@id/post_content" />
 
     <TextView
         android:id="@+id/likes"
@@ -88,7 +81,7 @@
         android:layout_marginTop="8dp"
         android:text="Likes"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_container" />
+        app:layout_constraintTop_toBottomOf="@id/image_slider" />
 
     <TextView
         android:id="@+id/comments"

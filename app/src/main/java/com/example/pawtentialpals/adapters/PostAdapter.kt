@@ -1,5 +1,6 @@
 package com.example.pawtentialpals.adapters
 
+import ImageSliderAdapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
@@ -41,10 +42,9 @@ class PostAdapter(private val postList: List<PostModel>) :
                 placeholder(R.drawable.ic_user_placeholder)
                 error(R.drawable.ic_user_placeholder)
             }
-            binding.postImage.load(post.postImage) {
-                placeholder(R.drawable.ic_post_placeholder)
-                error(R.drawable.ic_post_placeholder)
-            }
+
+            val imageUrls = listOf(post.postImage, post.mapImage)
+            binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
 
             val userId = FirebaseAuth.getInstance().currentUser?.uid
 

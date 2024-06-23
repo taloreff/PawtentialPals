@@ -1,7 +1,9 @@
 package com.example.pawtentialpals.adapters
 
+import ImageSliderAdapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -38,10 +40,9 @@ class MyPostAdapter(private val postList: MutableList<PostModel>) :
                 placeholder(R.drawable.batman)
                 error(R.drawable.batman)
             }
-            binding.postImage.load(post.postImage) {
-                placeholder(R.drawable.batman)
-                error(R.drawable.batman)
-            }
+
+            val imageUrls = listOf(post.postImage, post.mapImage)
+            binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
 
             binding.editButton.setOnClickListener {
                 if (binding.editButton.text == "Edit") {

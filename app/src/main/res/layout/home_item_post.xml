@@ -44,23 +44,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/user_image" />
 
-    <FrameLayout
-        android:id="@+id/image_container"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/image_slider"
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/post_content">
-
-        <ImageView
-            android:id="@+id/post_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_post_placeholder" />
-
-    </FrameLayout>
+        app:layout_constraintTop_toBottomOf="@id/post_content" />
 
     <LinearLayout
         android:id="@+id/likes_container"
@@ -69,7 +60,7 @@
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_container">
+        app:layout_constraintTop_toBottomOf="@id/image_slider">
 
         <ImageView
             android:id="@+id/like_icon"
@@ -95,7 +86,7 @@
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintStart_toEndOf="@id/likes_container"
-        app:layout_constraintTop_toBottomOf="@id/image_container">
+        app:layout_constraintTop_toBottomOf="@id/image_slider">
 
         <ImageView
             android:id="@+id/comment_icon"

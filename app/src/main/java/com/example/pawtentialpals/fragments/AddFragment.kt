@@ -1,10 +1,7 @@
 package com.example.pawtentialpals.fragments
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -13,13 +10,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import coil.load
 import com.example.pawtentialpals.R
+import ImageSliderAdapter
 import com.example.pawtentialpals.databinding.FragmentAddBinding
 import com.example.pawtentialpals.models.PostModel
 import com.example.pawtentialpals.models.UserModel
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
@@ -29,35 +31,18 @@ class AddFragment : Fragment() {
     private var _binding: FragmentAddBinding? = null
     private val binding get() = _binding!!
 
-    private val CAMERA_REQUEST_CODE = 100
-    private val GALLERY_REQUEST_CODE = 101
-
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
 
     private var selectedImageUri: Uri? = null
-    private var selectedImageBitmap: Bitmap? = null
-
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val imageBitmap = result.data?.extras?.get("data") as? Bitmap
-            imageBitmap?.let {
-                selectedImageBitmap = it
-                binding.previewImageView.setImageBitmap(it)
-                binding.previewImageView.visibility = View.VISIBLE
-                binding.uploadPhotoButton.visibility = View.GONE
-            }
-        }
-    }
+    private var mapImageUrl: String? = null
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val imageUri = result.data?.data
             imageUri?.let {
                 selectedImageUri = it
-                binding.previewImageView.setImageURI(it)
-                binding.previewImageView.visibility = View.VISIBLE
-                binding.uploadPhotoButton.visibility = View.GONE
+                displayImages()
             }
         }
     }
@@ -70,9 +55,10 @@ class AddFragment : Fragment() {
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        binding.uploadPhotoButton.setOnClickListener { openImageSelector() }
+        binding.uploadPhotoButton.setOnClickListener { openGallery() }
         binding.postButton.setOnClickListener { postToFirestore() }
 
+        setupAutocomplete()
         return binding.root
     }
 
@@ -81,45 +67,61 @@ class AddFragment : Fragment() {
         _binding = null
     }
 
-    private fun openImageSelector() {
-        val options = arrayOf("Take Photo", "Choose from Gallery")
-        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-        builder.setTitle("Select Image")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> checkCameraPermissionAndOpen()
-                    1 -> openGallery()
-                }
-            }
-        builder.show()
-    }
-
-    private fun checkCameraPermissionAndOpen() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            openCamera()
-        } else {
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), CAMERA_REQUEST_CODE)
-        }
-    }
-
-    private fun openCamera() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        cameraLauncher.launch(takePictureIntent)
-    }
-
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         galleryLauncher.launch(intent)
+    }
+
+    private fun setupAutocomplete() {
+        val autocompleteFragment = childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
+                as AutocompleteSupportFragment
+
+        autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                val location = place.name ?: ""
+                binding.location.setText(location)
+                mapImageUrl = getMapImageUrl(place.latLng)
+                displayImages()
+            }
+
+            override fun onError(status: Status) {
+                Toast.makeText(requireContext(), "Error: ${status.statusMessage}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun getMapImageUrl(latLng: LatLng?): String {
+        val lat = latLng?.latitude ?: 0.0
+        val lng = latLng?.longitude ?: 0.0
+        return "https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red|$lat,$lng&key=AIzaSyDZHE0jtrWArab41ZbQN5YPTJqYeJC-jrU"
+    }
+
+    private fun displayImages() {
+        val imageUrls = mutableListOf<String>()
+        selectedImageUri?.let { imageUrls.add(it.toString()) }
+        mapImageUrl?.let { imageUrls.add(it) }
+
+        if (imageUrls.isNotEmpty()) {
+            binding.imageSlider.visibility = View.VISIBLE
+            binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
+        } else {
+            binding.imageSlider.visibility = View.GONE
+        }
+
+        // Always keep the upload button visible
+        binding.uploadPhotoButton.visibility = View.VISIBLE
     }
 
     private fun postToFirestore() {
         val description = binding.description.text.toString().trim()
         val location = binding.location.text.toString().trim()
 
-        if (selectedImageUri != null || selectedImageBitmap != null) {
+        if (description != null && selectedImageUri != null && mapImageUrl != null) {
             fetchUserDataAndSavePost(description, location)
         } else {
-            Toast.makeText(requireContext(), "Please select an image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please select an image and location", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -152,6 +154,7 @@ class AddFragment : Fragment() {
             description = description,
             location = location,
             postImage = selectedImageUri.toString(),
+            mapImage = mapImageUrl ?: "",
             likes = 0,
             comments = emptyList()
         )
@@ -177,18 +180,5 @@ class AddFragment : Fragment() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HomeFragment())
             .commit()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            CAMERA_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openCamera()
-                } else {
-                    Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
 }
