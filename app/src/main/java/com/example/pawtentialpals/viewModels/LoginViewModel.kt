@@ -1,4 +1,3 @@
-// LoginViewModel.kt
 package com.example.pawtentialpals.viewModels
 
 import androidx.lifecycle.LiveData

@@ -1,4 +1,3 @@
-// AddPostViewModel.kt
 package com.example.pawtentialpals.viewModels
 
 import android.app.Application
@@ -47,7 +46,7 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private suspend fun uploadImage(uri: Uri): String? {
+    private fun uploadImage(uri: Uri): String? {
         val filePath = getPathFromUri(uri) ?: return null
         return UploadService.uploadImg(filePath)
     }

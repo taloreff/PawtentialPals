@@ -1,4 +1,3 @@
-// HomeViewModel.kt
 package com.example.pawtentialpals.viewModels
 
 import androidx.lifecycle.LiveData
@@ -48,8 +47,6 @@ class HomeViewModel : ViewModel() {
             }
         }.addOnSuccessListener {
             loadPosts()
-        }.addOnFailureListener { e ->
-            // Handle the error
         }
     }
 }

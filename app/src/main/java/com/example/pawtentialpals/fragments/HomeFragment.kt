@@ -1,4 +1,3 @@
-// HomeFragment.kt
 package com.example.pawtentialpals.fragments
 
 import android.os.Bundle

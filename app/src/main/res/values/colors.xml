@@ -1,9 +1,14 @@
 <resources>
     <color name="white">#FFFFFF</color>
-    <color name="gray">#C4C4C4</color>
     <color name="dark_gray">#666666</color>
     <color name="purple_500">#6200EE</color>
     <color name="light_gray">#F5F5F5</color>
     <color name="nav_item_color">#FF6200EE</color>
     <color name="black">#000000</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+    <color name="primary">#6200EE</color>
+    <color name="gray">#757575</color>
+    <color name="ripple_color">#33000000</color>
 </resources>

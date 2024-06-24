@@ -1,4 +1,3 @@
-// AddFragment.kt
 package com.example.pawtentialpals.fragments
 
 import android.app.Activity
@@ -13,9 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import coil.load
 import coil.request.ImageRequest
-import coil.request.SuccessResult
 import com.example.pawtentialpals.R
 import ImageSliderAdapter
 import com.example.pawtentialpals.databinding.FragmentAddBinding

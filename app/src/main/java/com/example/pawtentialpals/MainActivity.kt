@@ -48,12 +48,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Load the default fragment
         if (savedInstanceState == null) {
             navView.selectedItemId = R.id.nav_home
         }
 
-        // Setup the menu fragment in the drawer
         supportFragmentManager.beginTransaction()
             .replace(R.id.drawer_menu, MenuFragment())
             .commit()

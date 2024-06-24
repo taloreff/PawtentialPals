@@ -1,4 +1,3 @@
-// PostAdapter.kt
 package com.example.pawtentialpals.adapters
 
 import ImageSliderAdapter

@@ -1,14 +1,10 @@
-// SignupActivity.kt
 package com.example.pawtentialpals.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.databinding.ActivitySignupBinding
 import com.example.pawtentialpals.viewModels.SignupViewModel
 
@@ -24,8 +20,9 @@ class SignupActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.goSignIn.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         binding.signUpButton.setOnClickListener {
@@ -35,14 +32,15 @@ class SignupActivity : AppCompatActivity() {
             signupViewModel.registerUser(email, password, username)
         }
 
-        signupViewModel.signupResult.observe(this, Observer { isSuccessful ->
+        signupViewModel.signupResult.observe(this) { isSuccessful ->
             if (isSuccessful) {
                 Toast.makeText(this, "User registered successfully", Toast.LENGTH_LONG).show()
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
+                finish()
             } else {
                 Toast.makeText(this, "Failed to register user", Toast.LENGTH_SHORT).show()
             }
-        })
+        }
     }
 }

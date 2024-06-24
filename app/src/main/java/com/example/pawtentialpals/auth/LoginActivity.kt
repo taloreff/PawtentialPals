@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.databinding.ActivityLoginBinding
 import com.example.pawtentialpals.viewModels.LoginViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
@@ -19,6 +20,12 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Check if the user is already logged in
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            navigateToMainActivity()
+        }
 
         binding.goSignUp.setOnClickListener {
             val intent = Intent(this, SignupActivity::class.java)
@@ -33,8 +40,7 @@ class LoginActivity : AppCompatActivity() {
 
         loginViewModel.loginResult.observe(this) { isSuccessful ->
             if (isSuccessful) {
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                navigateToMainActivity()
             } else {
                 Toast.makeText(
                     this,
@@ -43,5 +49,11 @@ class LoginActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

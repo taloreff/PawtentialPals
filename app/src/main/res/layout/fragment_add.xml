@@ -10,16 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_margin="8dp"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
-            app:cardUseCompatPadding="true"
+            android:backgroundTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -34,58 +33,68 @@
                     android:gravity="center_horizontal"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="54dp"
                         android:layout_marginBottom="16dp"
-                        android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:hint="@string/input_description"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusTopStart="18dp"
+                        app:boxCornerRadiusTopEnd="18dp"
+                        app:boxCornerRadiusBottomStart="18dp"
+                        app:boxCornerRadiusBottomEnd="18dp"
+                        app:hintEnabled="true">
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_gravity="center_vertical"
-                            android:layout_marginEnd="10dp"
-                            android:src="@drawable/ic_description" />
-
-                        <EditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/description"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="@string/input_description"
                             android:textColor="@color/black" />
-                    </LinearLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <LinearLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingVertical="12dp">
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusTopStart="18dp"
+                        app:boxCornerRadiusTopEnd="18dp"
+                        app:boxCornerRadiusBottomStart="18dp"
+                        app:boxCornerRadiusBottomEnd="18dp"
+                        app:hintEnabled="true">
 
-                        <fragment
-                            android:id="@+id/autocomplete_fragment"
-                            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingVertical="12dp">
 
-                    <Button
+                            <fragment
+                                android:id="@+id/autocomplete_fragment"
+                                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/upload_photo_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="46dp"
                         android:layout_marginBottom="16dp"
-                        android:background="@android:color/transparent"
-                        android:drawableTop="@drawable/image_upload"
-                        android:drawablePadding="8dp"
                         android:text="@string/upload_your_photo"
                         android:textColor="@color/purple_500"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        app:backgroundTint="@android:color/transparent"
+                        app:icon="@drawable/image_upload"
+                        app:iconTint="@android:color/black"
+                        app:iconSize="92dp"
+                        app:iconGravity="top"
+                        app:iconPadding="16dp" />
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/image_slider"
@@ -95,20 +104,20 @@
                         android:layout_marginBottom="16dp"
                         android:visibility="gone" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/post_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="16dp"
                         android:layout_marginBottom="16dp"
-                        android:backgroundTint="@color/purple_500"
+                        app:backgroundTint="@color/purple_500"
                         android:padding="12dp"
                         android:text="@string/post"
                         android:textColor="@color/white"
                         android:textStyle="bold" />
                 </LinearLayout>
             </ScrollView>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ProgressBar
