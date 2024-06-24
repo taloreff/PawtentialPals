@@ -1,3 +1,4 @@
+// MyPostsViewModel.kt
 package com.example.pawtentialpals.viewModels
 
 import androidx.lifecycle.LiveData
@@ -7,7 +8,6 @@ import com.example.pawtentialpals.models.PostModel
 import com.example.pawtentialpals.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.lang.Exception
 
 class MyPostsViewModel : ViewModel() {
 
@@ -17,12 +17,17 @@ class MyPostsViewModel : ViewModel() {
     private val _posts = MutableLiveData<List<PostModel>>()
     val posts: LiveData<List<PostModel>> get() = _posts
 
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
+
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
 
     fun loadUserPosts() {
+        _loading.value = true
         val userId = firebaseAuth.currentUser?.uid ?: run {
             _error.value = "User not authenticated"
+            _loading.value = false
             return
         }
 
@@ -32,9 +37,11 @@ class MyPostsViewModel : ViewModel() {
             .addOnSuccessListener { documents ->
                 val posts = documents.mapNotNull { it.toObject(PostModel::class.java) }
                 _posts.value = posts
+                _loading.value = false
             }
             .addOnFailureListener { e ->
-                handleFirestoreError(e)
+                _error.value = e.message
+                _loading.value = false
             }
     }
 
@@ -46,7 +53,8 @@ class MyPostsViewModel : ViewModel() {
                 loadUserPosts()
             }
             .addOnFailureListener { e ->
-                handleFirestoreError(e)
+                _error.value = e.message
+                _loading.value = false
             }
     }
 
@@ -58,7 +66,7 @@ class MyPostsViewModel : ViewModel() {
         val userRef = db.collection("users").document(userId)
         userRef.get().addOnSuccessListener { documentSnapshot ->
             val user = documentSnapshot.toObject(UserModel::class.java)
-            user?.let { it ->
+            user?.let {
                 val updatedPosts = it.posts.filter { it.id != postId }
                 userRef.update("posts", updatedPosts)
                     .addOnSuccessListener {
@@ -67,21 +75,18 @@ class MyPostsViewModel : ViewModel() {
                                 loadUserPosts()
                             }
                             .addOnFailureListener { e ->
-                                handleFirestoreError(e)
+                                _error.value = e.message
+                                _loading.value = false
                             }
                     }
                     .addOnFailureListener { e ->
-                        handleFirestoreError(e)
+                        _error.value = e.message
+                        _loading.value = false
                     }
-            } ?: run {
-                _error.value = "User data not found"
             }
         }.addOnFailureListener { e ->
-            handleFirestoreError(e)
+            _error.value = e.message
+            _loading.value = false
         }
-    }
-
-    private fun handleFirestoreError(e: Exception) {
-        _error.value = e.message ?: "Unknown error occurred"
     }
 }

@@ -29,7 +29,11 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
 
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
+
     fun postToFirestore(description: String, selectedImageUri: Uri, mapImageUrl: String, selectedLocation: String) {
+        _loading.value = true
         CoroutineScope(Dispatchers.IO).launch {
             val imageUrl = uploadImage(selectedImageUri)
             if (imageUrl != null) {
@@ -37,6 +41,7 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
             } else {
                 withContext(Dispatchers.Main) {
                     _error.value = "Failed to upload image"
+                    _loading.value = false
                 }
             }
         }
@@ -72,6 +77,7 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
             }
             .addOnFailureListener {
                 _error.postValue("Failed to fetch user data")
+                _loading.value = false
             }
     }
 
@@ -99,13 +105,16 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
                     .update("posts", com.google.firebase.firestore.FieldValue.arrayUnion(post))
                     .addOnSuccessListener {
                         _postCreationSuccess.postValue(true)
+                        _loading.value = false
                     }
                     .addOnFailureListener {
                         _error.postValue("Failed to save post to user")
+                        _loading.value = false
                     }
             }
             .addOnFailureListener {
                 _error.postValue("Failed to create post")
+                _loading.value = false
             }
     }
 }

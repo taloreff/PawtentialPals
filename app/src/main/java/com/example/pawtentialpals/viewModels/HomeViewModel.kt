@@ -12,15 +12,19 @@ class HomeViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val _posts = MutableLiveData<List<PostModel>>()
     val posts: LiveData<List<PostModel>> get() = _posts
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
 
     fun loadPosts() {
+        _loading.value = true
         firestore.collection("posts").get()
             .addOnSuccessListener { result ->
                 val posts = result.mapNotNull { it.toObject(PostModel::class.java) }
                 _posts.value = posts
+                _loading.value = false
             }
             .addOnFailureListener { e ->
-                // Handle the error
+                _loading.value = false
             }
     }
 

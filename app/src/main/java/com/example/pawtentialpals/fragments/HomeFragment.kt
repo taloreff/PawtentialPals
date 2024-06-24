@@ -35,6 +35,10 @@ class HomeFragment : Fragment() {
             binding.recyclerView.adapter = PostAdapter(posts, homeViewModel)
         }
 
+        homeViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
         homeViewModel.loadPosts()
     }
 

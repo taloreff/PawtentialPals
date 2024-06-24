@@ -14,6 +14,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import coil.load
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.example.pawtentialpals.R
 import ImageSliderAdapter
 import com.example.pawtentialpals.databinding.FragmentAddBinding
@@ -100,13 +102,32 @@ class AddFragment : Fragment() {
 
         if (imageUrls.size == 2) {
             binding.imageSlider.visibility = View.VISIBLE
-            binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
             binding.uploadPhotoButton.visibility = View.GONE
+            showProgressBar()
+
+            // Load the images with Coil and hide the progress bar when done
+            val imageLoader = coil.ImageLoader(requireContext())
+            val request = ImageRequest.Builder(requireContext())
+                .data(imageUrls[1])
+                .target { result ->
+                    binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
+                    hideProgressBar()
+                }
+                .build()
+            imageLoader.enqueue(request)
         } else {
             binding.imageSlider.visibility = View.GONE
         }
 
         // Always keep the upload button visible
+    }
+
+    private fun showProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        binding.progressBar.visibility = View.GONE
     }
 
     private fun postToFirestore() {
@@ -129,6 +150,10 @@ class AddFragment : Fragment() {
 
         addPostViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        }
+
+        addPostViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
 
