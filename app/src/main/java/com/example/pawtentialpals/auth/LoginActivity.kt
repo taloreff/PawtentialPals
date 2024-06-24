@@ -3,23 +3,22 @@ package com.example.pawtentialpals.auth
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.pawtentialpals.databinding.ActivityLoginBinding
 import com.example.pawtentialpals.MainActivity
-import com.google.firebase.auth.FirebaseAuth
+import com.example.pawtentialpals.databinding.ActivityLoginBinding
+import com.example.pawtentialpals.viewModels.LoginViewModel
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var firebaseAuth: FirebaseAuth
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        firebaseAuth = FirebaseAuth.getInstance()
 
         binding.goSignUp.setOnClickListener {
             val intent = Intent(this, SignupActivity::class.java)
@@ -29,20 +28,20 @@ class LoginActivity : AppCompatActivity() {
         binding.signInButton.setOnClickListener {
             val email = binding.email.text.toString().trim()
             val password = binding.password.text.toString().trim()
+            loginViewModel.login(email, password)
+        }
 
-            if(email.isNotEmpty() && password.isNotEmpty()) {
-                firebaseAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener{
-                    if(it.isSuccessful){
-                        val intent = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
-                    } else{
-                        Toast.makeText(this, "Email or password is not correct, try again", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }  else{
-                Toast.makeText(this,"Empty field are not allowed!", Toast.LENGTH_LONG).show()
+        loginViewModel.loginResult.observe(this) { isSuccessful ->
+            if (isSuccessful) {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            } else {
+                Toast.makeText(
+                    this,
+                    "Email or password is not correct, try again",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
-
 }
