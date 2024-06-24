@@ -1,20 +1,22 @@
 package com.example.pawtentialpals.adapters
 
 import ImageSliderAdapter
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.MyItemPostBinding
 import com.example.pawtentialpals.models.PostModel
+import com.example.pawtentialpals.models.UserModel
+import com.example.pawtentialpals.viewModels.MyPostsViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MyPostAdapter(private val postList: MutableList<PostModel>) :
+class MyPostAdapter(private val postList: MutableList<PostModel>, private val viewModel: MyPostsViewModel) :
     RecyclerView.Adapter<MyPostAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -29,7 +31,7 @@ class MyPostAdapter(private val postList: MutableList<PostModel>) :
 
     override fun getItemCount() = postList.size
 
-
+    @SuppressLint("NotifyDataSetChanged")
     fun updatePosts(newPosts: List<PostModel>) {
         postList.clear()
         postList.addAll(newPosts)
@@ -40,7 +42,7 @@ class MyPostAdapter(private val postList: MutableList<PostModel>) :
         fun bind(post: PostModel) {
             FirebaseFirestore.getInstance().collection("users").document(post.userId).get()
                 .addOnSuccessListener { document ->
-                    val user = document.toObject(User::class.java)
+                    val user = document.toObject(UserModel::class.java)
                     binding.username.text = user?.name ?: post.userName
                     binding.userImage.load(user?.image ?: post.userImage) {
                         transformations(CircleCropTransformation())
@@ -65,12 +67,12 @@ class MyPostAdapter(private val postList: MutableList<PostModel>) :
                 } else {
                     enableEditing(false)
                     binding.editButton.text = "Edit"
-                    updatePost(post)
+                    viewModel.updatePost(post, binding.postContent.text.toString())
                 }
             }
 
             binding.deleteButton.setOnClickListener {
-                deletePost(post)
+                viewModel.deletePost(post)
             }
         }
 
@@ -84,88 +86,9 @@ class MyPostAdapter(private val postList: MutableList<PostModel>) :
             }
         }
 
-        private fun updatePost(post: PostModel) {
-            val updatedDescription = binding.postContent.text.toString()
-            val db = FirebaseFirestore.getInstance()
-
-            db.collection("posts").document(post.id)
-                .update("description", updatedDescription)
-                .addOnSuccessListener {
-                    Toast.makeText(binding.root.context, "Post updated", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(binding.root.context, "Failed to update post", Toast.LENGTH_SHORT).show()
-                }
-
-            db.collection("users").document(post.userId).get()
-                .addOnSuccessListener { document ->
-                    val posts = document.toObject(User::class.java)?.posts ?: return@addOnSuccessListener
-                    val updatedPosts = posts.map {
-                        if (it.id == post.id) it.copy(description = updatedDescription) else it
-                    }
-
-                    db.collection("users").document(post.userId)
-                        .update("posts", updatedPosts)
-                        .addOnSuccessListener {
-                            Toast.makeText(binding.root.context, "User post updated", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(binding.root.context, "Failed to update user post", Toast.LENGTH_SHORT).show()
-                        }
-                }
-        }
-
-        private fun deletePost(post: PostModel) {
-            val db = FirebaseFirestore.getInstance()
-            val postId = post.id
-            val userId = post.userId
-
-            // First, remove the post from the user's posts array
-            val userRef = db.collection("users").document(userId)
-            userRef.get().addOnSuccessListener { documentSnapshot ->
-                val user = documentSnapshot.toObject(User::class.java)
-                user?.let {
-                    val updatedPosts = it.posts.filter { it.id != postId }
-                    userRef.update("posts", updatedPosts)
-                        .addOnSuccessListener {
-                            // If successful, delete the post from the posts collection
-                            db.collection("posts").document(postId).delete()
-                                .addOnSuccessListener {
-                                    onPostDeleted(post)
-                                    Toast.makeText(binding.root.context, "Post deleted successfully", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(binding.root.context, "Failed to delete post: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(binding.root.context, "Failed to update user posts: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                }
-            }.addOnFailureListener { e ->
-                Toast.makeText(binding.root.context, "Failed to fetch user data: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        private fun onPostDeleted(post: PostModel) {
-            val position = postList.indexOf(post)
-            if (position != -1) {
-                postList.removeAt(position)
-                notifyItemRemoved(position)
-            }
-        }
-
         private fun formatTimestamp(timestamp: Long): String {
             val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
             return sdf.format(Date(timestamp))
         }
     }
 }
-
-data class User(
-    val uid: String = "",
-    val name: String = "",
-    val email: String = "",
-    val image: String = "",
-    val posts: List<PostModel> = listOf()
-)
