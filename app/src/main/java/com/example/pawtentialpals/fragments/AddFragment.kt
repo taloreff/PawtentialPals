@@ -140,8 +140,8 @@ class AddFragment : Fragment() {
     private fun observeViewModel() {
         addPostViewModel.postCreationSuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
-                Toast.makeText(requireContext(), "Post created successfully", Toast.LENGTH_SHORT).show()
                 navigateToHome()
+                addPostViewModel.resetPostCreationSuccess()
             }
         }
 

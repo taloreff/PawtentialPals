@@ -116,4 +116,8 @@ class AddPostViewModel(application: Application) : AndroidViewModel(application)
                 _loading.value = false
             }
     }
+
+    fun resetPostCreationSuccess() {
+        _postCreationSuccess.value = false
+    }
 }

@@ -19,7 +19,8 @@ class HomeViewModel : ViewModel() {
         firestore.collection("posts").get()
             .addOnSuccessListener { result ->
                 val posts = result.mapNotNull { it.toObject(PostModel::class.java) }
-                _posts.value = posts
+                val sortedPosts = posts.sortedByDescending { it.timestamp }
+                _posts.value = sortedPosts
                 _loading.value = false
             }
             .addOnFailureListener { e ->

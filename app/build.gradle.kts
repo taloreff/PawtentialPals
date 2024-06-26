@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -55,6 +56,8 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.sqlite:sqlite:2.1.0")
+    implementation ("androidx.sqlite:sqlite-framework:2.1.0")
     implementation ("com.google.android.material:material:1.8.0")
     implementation("com.google.android.material:material:1.9.0")
     implementation("com.google.android.gms:play-services-maps:18.0.2")

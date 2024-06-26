@@ -1,5 +1,6 @@
 package com.example.pawtentialpals.fragments
 
+import MyPostsFragment
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.auth.LoginActivity
 import com.example.pawtentialpals.databinding.FragmentMenuBinding
+import com.example.pawtentialpals.models.PostModel
 import com.example.pawtentialpals.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -85,6 +87,11 @@ class MenuFragment : Fragment() {
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+        (requireActivity() as? MainActivity)?.binding?.drawerLayout?.closeDrawers()
+    }
+
+    fun navigateToPostDetails(post: PostModel) {
+        (activity as? MainActivity)?.navigateToPostDetails(post)
         (requireActivity() as? MainActivity)?.binding?.drawerLayout?.closeDrawers()
     }
 

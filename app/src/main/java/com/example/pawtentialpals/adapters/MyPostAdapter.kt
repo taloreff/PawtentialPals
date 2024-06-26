@@ -1,7 +1,5 @@
-package com.example.pawtentialpals.adapters
-
-import ImageSliderAdapter
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -11,13 +9,17 @@ import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.MyItemPostBinding
 import com.example.pawtentialpals.models.PostModel
 import com.example.pawtentialpals.models.UserModel
-import com.example.pawtentialpals.viewModels.MyPostsViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MyPostAdapter(private val postList: MutableList<PostModel>, private val viewModel: MyPostsViewModel) :
-    RecyclerView.Adapter<MyPostAdapter.PostViewHolder>() {
+class MyPostAdapter(
+    private val postList: MutableList<PostModel>,
+    private val viewModel: MyPostsViewModel,
+    private val imagePickerListener: ImagePickerListener
+) : RecyclerView.Adapter<MyPostAdapter.PostViewHolder>() {
+
+    private var selectedImageUri: Uri? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = MyItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -67,12 +69,20 @@ class MyPostAdapter(private val postList: MutableList<PostModel>, private val vi
                 } else {
                     enableEditing(false)
                     binding.editButton.text = "Edit"
-                    viewModel.updatePost(post, binding.postContent.text.toString())
+                    viewModel.updatePost(post, binding.postContent.text.toString(), selectedImageUri, binding.root.context)
                 }
             }
 
             binding.deleteButton.setOnClickListener {
                 viewModel.deletePost(post)
+            }
+
+            binding.imageEditButton.setOnClickListener {
+                imagePickerListener.pickImage { uri ->
+                    selectedImageUri = uri
+                    binding.imageSlider.adapter = ImageSliderAdapter(listOf(uri.toString(), post.mapImage))
+                    viewModel.updatePostWithImage(post, uri, binding.root.context)
+                }
             }
         }
 
@@ -90,5 +100,9 @@ class MyPostAdapter(private val postList: MutableList<PostModel>, private val vi
             val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
             return sdf.format(Date(timestamp))
         }
+    }
+
+    interface ImagePickerListener {
+        fun pickImage(callback: (Uri) -> Unit)
     }
 }

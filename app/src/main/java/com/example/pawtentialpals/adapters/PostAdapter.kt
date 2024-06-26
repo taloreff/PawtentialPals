@@ -1,6 +1,7 @@
 package com.example.pawtentialpals.adapters
 
 import ImageSliderAdapter
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -15,8 +16,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PostAdapter(private val postList: List<PostModel>, private val viewModel: HomeViewModel) :
-    RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+class PostAdapter(
+    private val postList: MutableList<PostModel>,
+    private val onPostClick: (PostModel) -> Unit,
+    private val homeViewModel: HomeViewModel
+) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = HomeItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -29,6 +33,13 @@ class PostAdapter(private val postList: List<PostModel>, private val viewModel: 
     }
 
     override fun getItemCount() = postList.size
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updatePosts(newPosts: List<PostModel>) {
+        postList.clear()
+        postList.addAll(newPosts)
+        notifyDataSetChanged()
+    }
 
     inner class PostViewHolder(private val binding: HomeItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(post: PostModel) {
@@ -63,8 +74,12 @@ class PostAdapter(private val postList: List<PostModel>, private val viewModel: 
 
             binding.likesContainer.setOnClickListener {
                 if (userId != null) {
-                    viewModel.likePost(post, userId)
+                    homeViewModel.likePost(post, userId)
                 }
+            }
+
+            binding.root.setOnClickListener {
+                onPostClick(post)
             }
         }
 

@@ -8,15 +8,13 @@ import com.example.pawtentialpals.databinding.ActivityMainBinding
 import com.example.pawtentialpals.fragments.HomeFragment
 import com.example.pawtentialpals.fragments.AddFragment
 import com.example.pawtentialpals.fragments.MenuFragment
-import com.example.pawtentialpals.fragments.MyPostsFragment
-import com.example.pawtentialpals.fragments.ProfileFragment
+import com.example.pawtentialpals.fragments.PostDetailsFragment
+import com.example.pawtentialpals.models.PostModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
-    private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
         drawerLayout = binding.drawerLayout
 
         // Setup Bottom Navigation
@@ -61,5 +58,10 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+    }
+
+    fun navigateToPostDetails(post: PostModel) {
+        val fragment = PostDetailsFragment.newInstance(post)
+        loadFragment(fragment)
     }
 }
