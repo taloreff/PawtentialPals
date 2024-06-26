@@ -39,7 +39,10 @@ class MyPostsViewModel(private val context: Context) : ViewModel() {
         }
 
         // Load posts from SQLite
-        _posts.value = postRepository.getAllPosts()
+        val localPosts = postRepository.getAllPosts()
+        if (localPosts.isNotEmpty()) {
+            _posts.value = localPosts
+        }
 
         // Sync with Firestore
         firestore.collection("posts")
@@ -56,6 +59,7 @@ class MyPostsViewModel(private val context: Context) : ViewModel() {
                 _loading.value = false
             }
     }
+
 
     fun updatePost(post: PostModel, newDescription: String, imageUri: Uri?, context: Context) {
         val db = firestore
