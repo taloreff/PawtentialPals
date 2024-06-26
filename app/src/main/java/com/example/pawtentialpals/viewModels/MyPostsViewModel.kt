@@ -41,7 +41,8 @@ class MyPostsViewModel(private val context: Context) : ViewModel() {
         // Load posts from SQLite
         val localPosts = postRepository.getAllPosts()
         if (localPosts.isNotEmpty()) {
-            _posts.value = localPosts
+            val sortedPosts = localPosts.sortedByDescending { it.timestamp }
+            _posts.value = sortedPosts
         }
 
         // Sync with Firestore
@@ -50,7 +51,8 @@ class MyPostsViewModel(private val context: Context) : ViewModel() {
             .get()
             .addOnSuccessListener { documents ->
                 val posts = documents.mapNotNull { it.toObject(PostModel::class.java) }
-                _posts.value = posts
+                val sortedPosts = posts.sortedByDescending { it.timestamp }
+                _posts.value = sortedPosts
                 posts.forEach { postRepository.insertPost(it) } // Save to SQLite
                 _loading.value = false
             }
