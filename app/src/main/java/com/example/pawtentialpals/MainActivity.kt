@@ -30,22 +30,6 @@ class MainActivity : AppCompatActivity() {
 
         postRepository = PostRepository(this)
 
-        // Insert test data
-        val post = PostModel(
-            id = UUID.randomUUID().toString(),
-            userId = "user_1",
-            userName = "Test User",
-            userImage = "user_image_url",
-            timestamp = System.currentTimeMillis(),
-            description = "This is a test post",
-            location = "Test Location",
-            postImage = "post_image_url",
-            mapImage = "map_image_url",
-            likes = 0,
-            comments = listOf()
-        )
-        postRepository.insertPost(post)
-
         // Query and log data
         val posts = postRepository.getAllPosts()
         for (post in posts) {

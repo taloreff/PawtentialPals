@@ -4,8 +4,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.example.pawtentialpals.models.Comment
 import com.example.pawtentialpals.models.PostModel
+import com.example.pawtentialpals.models.Comment
 
 class PostDao(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
@@ -63,7 +63,8 @@ class PostDao(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null,
         values.put(COLUMN_MAP_IMAGE, post.mapImage)
         values.put(COLUMN_LIKES, post.likes)
         values.put(COLUMN_COMMENTS, post.comments.joinToString(separator = ",") { Comment.toString(it) })
-        db.insert(TABLE_POSTS, null, values)
+
+        db.insertWithOnConflict(TABLE_POSTS, null, values, SQLiteDatabase.CONFLICT_REPLACE)
         db.close()
     }
 
