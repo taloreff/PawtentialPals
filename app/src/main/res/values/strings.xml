@@ -27,4 +27,5 @@
     <string name="input_location">Enter your location</string>
     <string name="input_puppy_location">Enter your puppy location</string>
     <string name="post">Post</string>
+    <string name="google_maps_key">AIzaSyDZHE0jtrWArab41ZbQN5YPTJqYeJC-jrU</string>
 </resources>

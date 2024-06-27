@@ -56,6 +56,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.android.libraries.places:places:2.5.0")
     implementation ("androidx.sqlite:sqlite:2.1.0")
     implementation ("androidx.sqlite:sqlite-framework:2.1.0")
     implementation ("com.google.android.material:material:1.8.0")

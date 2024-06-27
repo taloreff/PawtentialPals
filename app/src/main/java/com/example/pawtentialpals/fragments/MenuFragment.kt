@@ -52,6 +52,10 @@ class MenuFragment : Fragment() {
         binding.myProfile.setOnClickListener {
             loadFragment(ProfileFragment())
         }
+
+        binding.findAdoption.setOnClickListener {
+            loadFragment(FindAdoptionFragment())
+        }
     }
 
     private fun loadUserProfile() {
