@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.pawtentialpals.adapters.CustomInfoWindowAdapter
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.models.PostModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -16,7 +17,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AddressComponent
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
@@ -42,6 +42,7 @@ class FindAdoptionFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
+        googleMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater))
         loadPosts()
     }
 
@@ -52,7 +53,8 @@ class FindAdoptionFragment : Fragment(), OnMapReadyCallback {
                     val post = document.toObject(PostModel::class.java)
                     getLatLngFromAddress(post.location) { latLng ->
                         if (latLng != null) {
-                            googleMap.addMarker(MarkerOptions().position(latLng).title(post.description))
+                            val marker = googleMap.addMarker(MarkerOptions().position(latLng).title(post.description))
+                            marker?.tag = post
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f))
                         }
                     }

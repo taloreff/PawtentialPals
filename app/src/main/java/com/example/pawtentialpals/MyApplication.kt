@@ -6,6 +6,6 @@ import com.google.android.libraries.places.api.Places
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        Places.initialize(applicationContext, "AIzaSyDZHE0jtrWArab41ZbQN5YPTJqYeJC-jrU")
+        Places.initialize(applicationContext, getString(R.string.google_maps_key))
     }
 }

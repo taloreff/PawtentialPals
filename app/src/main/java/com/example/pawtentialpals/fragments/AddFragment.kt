@@ -89,8 +89,10 @@ class AddFragment : Fragment() {
     private fun getMapImageUrl(latLng: LatLng?): String {
         val lat = latLng?.latitude ?: 0.0
         val lng = latLng?.longitude ?: 0.0
-        return "https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red|$lat,$lng&key=AIzaSyDZHE0jtrWArab41ZbQN5YPTJqYeJC-jrU"
+        val apiKey = getString(R.string.google_maps_key)
+        return "https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red|$lat,$lng&key=$apiKey"
     }
+
 
     private fun displayImages() {
         val imageUrls = mutableListOf<String>()

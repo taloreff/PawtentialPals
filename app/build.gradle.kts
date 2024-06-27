@@ -56,6 +56,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.google.android.libraries.places:places:2.5.0")
     implementation ("androidx.sqlite:sqlite:2.1.0")
     implementation ("androidx.sqlite:sqlite-framework:2.1.0")
