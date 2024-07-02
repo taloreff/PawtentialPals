@@ -6,9 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.adapters.PostAdapter
 import com.example.pawtentialpals.databinding.FragmentHomeBinding
 import com.example.pawtentialpals.viewModels.HomeViewModel
@@ -39,9 +38,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = PostAdapter(mutableListOf(), { post ->
-            (activity as? MainActivity)?.navigateToPostDetails(post)
-        }, homeViewModel)
+        adapter = PostAdapter(
+            mutableListOf(),
+            { post ->
+                val action = HomeFragmentDirections.actionHomeToPostDetails(post.id)
+                findNavController().navigate(action)
+            },
+            homeViewModel
+        )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.adapter = adapter
     }

@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import coil.load
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.FragmentProfileBinding
@@ -27,7 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class ProfileFragment : Fragment() {
 
@@ -161,7 +161,6 @@ class ProfileFragment : Fragment() {
                 Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
                 binding.username.isEnabled = false
                 profileUpdateViewModel.setProfileUpdated(true)
-                navigateToHome()
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
@@ -203,12 +202,6 @@ class ProfileFragment : Fragment() {
                         Toast.makeText(requireContext(), "Failed to update previous posts", Toast.LENGTH_SHORT).show()
                     }
             }
-    }
-
-    private fun navigateToHome() {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, HomeFragment())
-            .commit()
     }
 
     companion object {

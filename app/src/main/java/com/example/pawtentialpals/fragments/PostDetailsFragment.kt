@@ -1,5 +1,6 @@
 package com.example.pawtentialpals.fragments
 
+import ImageSliderAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,11 +8,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import coil.load
-import com.example.pawtentialpals.R
-import ImageSliderAdapter
-import android.annotation.SuppressLint
 import coil.transform.CircleCropTransformation
+import com.example.pawtentialpals.R
 import com.example.pawtentialpals.databinding.FragmentPostDetailsBinding
 import com.example.pawtentialpals.models.Comment
 import com.example.pawtentialpals.models.PostModel
@@ -31,18 +31,7 @@ class PostDetailsFragment : Fragment() {
 
     private lateinit var post: PostModel
 
-    companion object {
-        private const val ARG_POST = "post"
-
-        fun newInstance(post: PostModel): PostDetailsFragment {
-            val fragment = PostDetailsFragment()
-            val bundle = Bundle().apply {
-                putParcelable(ARG_POST, post)
-            }
-            fragment.arguments = bundle
-            return fragment
-        }
-    }
+    private val args: PostDetailsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,31 +46,39 @@ class PostDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        arguments?.getParcelable<PostModel>(ARG_POST)?.let { post ->
-            this.post = post
-            binding.username.text = post.userName
-            binding.postTime.text = formatTimestamp(post.timestamp)
-            binding.postContent.text = post.description
-            binding.postLocation.text = post.location
-            binding.userImage.load(post.userImage) {
-                transformations(CircleCropTransformation())
-                placeholder(R.drawable.ic_user_placeholder)
-                error(R.drawable.ic_user_placeholder)
-            }
-
-            val imageUrls = listOf(post.postImage, post.mapImage)
-            binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
-
-            loadComments()
-
-            binding.commentButton.setOnClickListener {
-                val newCommentText = binding.commentInput.text.toString()
-                if (newCommentText.isNotEmpty()) {
-                    addComment(newCommentText)
-                    binding.commentInput.text.clear()
+        val postId = args.postId
+        firestore.collection("posts").document(postId).get()
+            .addOnSuccessListener { document ->
+                val fetchedPost = document.toObject(PostModel::class.java)
+                fetchedPost?.let {
+                    post = it
+                    displayPostDetails()
+                    loadComments()
                 }
             }
+
+        binding.commentButton.setOnClickListener {
+            val newCommentText = binding.commentInput.text.toString()
+            if (newCommentText.isNotEmpty()) {
+                addComment(newCommentText)
+                binding.commentInput.text.clear()
+            }
         }
+    }
+
+    private fun displayPostDetails() {
+        binding.username.text = post.userName
+        binding.postTime.text = formatTimestamp(post.timestamp)
+        binding.postContent.text = post.description
+        binding.postLocation.text = post.location
+        binding.userImage.load(post.userImage) {
+            transformations(CircleCropTransformation())
+            placeholder(R.drawable.ic_user_placeholder)
+            error(R.drawable.ic_user_placeholder)
+        }
+
+        val imageUrls = listOf(post.postImage, post.mapImage)
+        binding.imageSlider.adapter = ImageSliderAdapter(imageUrls)
     }
 
     private fun addComment(commentText: String) {
@@ -114,14 +111,13 @@ class PostDetailsFragment : Fragment() {
     private fun loadComments() {
         firestore.collection("posts").document(post.id).get()
             .addOnSuccessListener { document ->
-                val post = document.toObject(PostModel::class.java)
-                post?.comments?.forEach { comment ->
+                val fetchedPost = document.toObject(PostModel::class.java)
+                fetchedPost?.comments?.forEach { comment ->
                     displayComment(comment)
                 }
             }
     }
 
-    @SuppressLint("MissingInflatedId")
     private fun displayComment(comment: Comment) {
         val commentView = LayoutInflater.from(context).inflate(R.layout.item_comment, binding.commentsContainer, false)
         val userImage = commentView.findViewById<ImageView>(R.id.comment_user_image)

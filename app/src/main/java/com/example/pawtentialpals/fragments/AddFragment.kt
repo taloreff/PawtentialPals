@@ -15,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import coil.request.ImageRequest
 import com.example.pawtentialpals.R
 import ImageSliderAdapter
+import androidx.navigation.fragment.findNavController
 import com.example.pawtentialpals.databinding.FragmentAddBinding
 import com.example.pawtentialpals.viewModels.AddPostViewModel
 import com.google.android.gms.common.api.Status
@@ -157,8 +158,7 @@ class AddFragment : Fragment() {
     }
 
     private fun navigateToHome() {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, HomeFragment())
-            .commit()
+        findNavController().navigate(R.id.action_add_to_home)
     }
+
 }

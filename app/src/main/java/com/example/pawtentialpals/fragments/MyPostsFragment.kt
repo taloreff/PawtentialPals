@@ -1,3 +1,7 @@
+package com.example.pawtentialpals.fragments
+
+import MyPostAdapter
+import MyPostsViewModel
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri

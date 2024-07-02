@@ -1,6 +1,6 @@
 package com.example.pawtentialpals.fragments
 
-import MyPostsFragment
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,12 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import coil.load
-import com.example.pawtentialpals.MainActivity
 import com.example.pawtentialpals.R
 import com.example.pawtentialpals.auth.LoginActivity
 import com.example.pawtentialpals.databinding.FragmentMenuBinding
-import com.example.pawtentialpals.models.PostModel
 import com.example.pawtentialpals.models.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,9 +21,19 @@ class MenuFragment : Fragment() {
 
     private var _binding: FragmentMenuBinding? = null
     private val binding get() = _binding!!
+    private lateinit var drawerCloseListener: DrawerCloseListener
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is DrawerCloseListener) {
+            drawerCloseListener = context
+        } else {
+            throw RuntimeException("$context must implement DrawerCloseListener")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,15 +55,18 @@ class MenuFragment : Fragment() {
         }
 
         binding.myPosts.setOnClickListener {
-            loadFragment(MyPostsFragment())
+            findNavController().navigate(R.id.action_global_to_myPostsFragment)
+            drawerCloseListener.closeDrawer()
         }
 
         binding.myProfile.setOnClickListener {
-            loadFragment(ProfileFragment())
+            findNavController().navigate(R.id.action_global_to_profileFragment)
+            drawerCloseListener.closeDrawer()
         }
 
         binding.findAdoption.setOnClickListener {
-            loadFragment(FindAdoptionFragment())
+            findNavController().navigate(R.id.action_global_to_findAdoptionFragment)
+            drawerCloseListener.closeDrawer()
         }
     }
 
@@ -84,19 +96,6 @@ class MenuFragment : Fragment() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
-    }
-
-    private fun loadFragment(fragment: Fragment) {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .addToBackStack(null)
-            .commit()
-        (requireActivity() as? MainActivity)?.binding?.drawerLayout?.closeDrawers()
-    }
-
-    fun navigateToPostDetails(post: PostModel) {
-        (activity as? MainActivity)?.navigateToPostDetails(post)
-        (requireActivity() as? MainActivity)?.binding?.drawerLayout?.closeDrawers()
     }
 
     override fun onDestroyView() {
